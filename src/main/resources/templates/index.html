@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0d6efd">
+    <title>LocalShop PWA - SSR</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/png" href="/images/icon-192.png">
+    <link rel="apple-touch-icon" href="/images/icon-192.png">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body class="bg-light">
+
+    <nav class="navbar navbar-dark bg-primary mb-4">
+        <div class="container">
+            <span class="navbar-brand mb-0 h1">LocalShop PWA (Spring Boot SSR)</span>
+            <button id="btnGeo" class="btn btn-outline-light btn-sm">Obtener Ubicación</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div id="status-location" class="mb-3 text-muted"></div>
+
+        <h2 class="mb-3">Catálogo de Productos (Datos desde BD)</h2>
+        <div class="row">
+            <div class="col-md-4 mb-3" th:each="producto : ${productos}">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title" th:text="${producto.nombre}">Nombre</h5>
+                        <p class="card-text" th:text="${producto.descripcion}">Descripción</p>
+                        <p class="fw-bold text-success" th:text="${'$' + producto.precio}">$0.00</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Registro del Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then(reg => console.log('Service Worker registrado con éxito:', reg.scope))
+                .catch(err => console.error('Error al registrar Service Worker:', err));
+        }
+
+        // Uso de API de hardware (Geolocalización)
+        document.getElementById('btnGeo').addEventListener('click', () => {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    pos => {
+                        document.getElementById('status-location').innerText =
+                            `Ubicación actual: Lat ${pos.coords.latitude.toFixed(4)}, Lon ${pos.coords.longitude.toFixed(4)}`;
+                    },
+                    err => alert('No se pudo obtener la ubicación del dispositivo.')
+                );
+            } else {
+                alert('Tu navegador no soporta geolocalización.');
+            }
+        });
+    </script>
+</body>
+</html>
